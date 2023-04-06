@@ -60,6 +60,8 @@ typedef struct thread_args {
 void abrir_imagen(BMP *imagen, char ruta[]); // Función para abrir la imagen BMP
 void crear_imagen(BMP *imagen, char ruta[]); // Función para crear una imagen BMP
 void *convertir_imagenOpcion1(void *arg);    // Función para convertir imagen BMP con filtro 1
+//Falta
+//Falta
 
 //*********************************************************************************************************
 // PROGRAMA PRINCIPAL
@@ -151,7 +153,7 @@ int main(int argc, char *argv[]) {
     // Va la funcion de filtro opcion 3
   }
 
-  // Esto de aqui hacia abajo va para correr la funcion de filtro opcion 1 (va dentro de ese if) 
+  //Esto de aqui hacia abajo va para correr la funcion de filtro opcion 1 (va dentro de ese if) 
   //Esta aca para probar mas facil para concurrencia con hilos
   for (int i = 0; i < NUM_THREADS; i++) {
     thread_args *argumentos = malloc(sizeof(thread_args));
