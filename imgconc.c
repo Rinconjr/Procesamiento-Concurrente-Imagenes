@@ -146,16 +146,8 @@ int main(int argc, char *argv[]) {
 
   //Opciones de filtro dependiendo de lo ingresado por el usuario
   if (atoi(argv[ban_o + 1]) == 1) {
-    // Va la funcion de filtro opcion 1
-  } else if (atoi(argv[ban_o + 1]) == 2) {
-    // Va la funcion de filtro opcion 2
-  } else if (atoi(argv[ban_o + 1]) == 3) {
-    // Va la funcion de filtro opcion 3
-  }
-
-  //Esto de aqui hacia abajo va para correr la funcion de filtro opcion 1 (va dentro de ese if) 
-  //Esta aca para probar mas facil para concurrencia con hilos
-  for (int i = 0; i < NUM_THREADS; i++) {
+    
+    for (int i = 0; i < NUM_THREADS; i++) {
     thread_args *argumentos = malloc(sizeof(thread_args));
     argumentos->indice = i;
     argumentos->imagen = &img;
@@ -163,15 +155,26 @@ int main(int argc, char *argv[]) {
     if (rc) {
       perror("Error: ");
       exit(-1);
+      }
     }
-  }
 
-  // Esperar que los hilos terminen
-  for (int i = 0; i < NUM_THREADS; i++) {
-    if (pthread_join(threads[i], NULL) != 0) {
-      perror("Error al unir los hilos\n");
-      exit(1);
+    // Esperar que los hilos terminen
+    for (int i = 0; i < NUM_THREADS; i++) {
+      if (pthread_join(threads[i], NULL) != 0) {
+        perror("Error al unir los hilos\n");
+        exit(1);
+      }
     }
+
+    
+  } else if (atoi(argv[ban_o + 1]) == 2) {
+    // Va la funcion de filtro opcion 2
+    
+    
+  } else if (atoi(argv[ban_o + 1]) == 3) {
+    // Va la funcion de filtro opcion 3
+    
+    
   }
 
   //Liberar memoria
