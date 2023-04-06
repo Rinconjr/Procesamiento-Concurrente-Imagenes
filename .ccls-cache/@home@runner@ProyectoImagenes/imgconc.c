@@ -48,6 +48,7 @@ typedef struct BMP {
   unsigned char ***pixel; // Puntero a una tabla dinamica de caracteres de 3 dimensiones para almacenar los pixeles
 } BMP;
 
+//Estructura para almacenar el indice del hilo y una referencia a la imagen BMP (Estructura BMP)
 typedef struct thread_args {
   int indice;
   BMP *imagen;
