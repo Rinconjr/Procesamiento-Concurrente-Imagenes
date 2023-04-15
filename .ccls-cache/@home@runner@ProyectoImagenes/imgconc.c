@@ -2,13 +2,17 @@
 // EDGARDO ADRIÁN FRANCO MARTÍNEZ
 //(C) Agosto 2010 Versión 1.5
 // Lectura, escritura y tratamiento de imagenes BMP
-// Compilación: "gcc BMP.c -o BMP"
-// Ejecución: "./BMP imagen.bmp"
+// Compilación: "gcc imgconc.c -o imgconc"
+// Ejecución: "./imgconc –i imagenIn –t imagenOut –o opción –h nhilos"
 // Observaciones "imagen.bmp" es un BMP de 24 bits
 
 // Archivo modificado por Mariela Curiel par leer toda la imagen en la memoria
-// y hacer la conversion de los pixeles en una funci'on. Esto facilita la
+// y hacer la conversion de los pixeles en una función. Esto facilita la
 // programacion posterior con hilos.
+
+//  Archivo modificado por Juan Diego Echeverry, Santiago Yañez y Nicolás Rincón
+//  para procesamiento de una imagen en formato BMP para aplicarle filtros 
+//  de forma concurrente por medio de la utilizacion de hilos
 
 //*****************************************************************
 
@@ -28,7 +32,8 @@ int NUM_THREADS;
 //********************************************************************************
 // DECLARACION DE ESTRUCTURAS
 //********************************************************************************
-// Estructura para almacenar la cabecera de la imagen BMP y un apuntador a la matriz de pixeles
+// Estructura para almacenar la cabecera de la imagen BMP y un apuntador a la
+// matriz de pixeles
 typedef struct BMP {
   char bm[2];    //(2 Bytes) BM (Tipo de archivo)
   int tamano;    //(4 Bytes) Tamaño del archivo en bytes
@@ -48,7 +53,7 @@ typedef struct BMP {
   unsigned char ***pixel; // Puntero a una tabla dinamica de caracteres de 3 dimensiones para almacenar los pixeles
 } BMP;
 
-//Estructura para almacenar el indice del hilo y una referencia a la imagen BMP (Estructura BMP)
+// Estructura para almacenar el indice del hilo y una referencia a la imagen BMP (Estructura BMP)
 typedef struct thread_args {
   int indice;
   BMP *imagen;
@@ -59,10 +64,9 @@ typedef struct thread_args {
 //*****************************************************************
 void abrir_imagen(BMP *imagen, char ruta[]); // Función para abrir la imagen BMP
 void crear_imagen(BMP *imagen, char ruta[]); // Función para crear una imagen BMP
-void *convertir_imagenOpcion1(void *arg);    // Función para convertir imagen BMP con filtro 1
-//Falta
-//Falta
-
+void *convertir_imagenOpcion1(void *arg); // Función para convertir imagen BMP con filtro 1
+void *convertir_imagenOpcion2(void *arg); //Función para convritr imagen BMP con filtro 2
+void *convertir_imagenOpcion3(void *arg); //Función para convritr imagen BMP con filtro 3
 //*********************************************************************************************************
 // PROGRAMA PRINCIPAL
 //*********************************************************************************************************
@@ -82,7 +86,7 @@ int main(int argc, char *argv[]) {
 
   // Validar la posicion de las banderas
   int ban_i, ban_t, ban_o, ban_h, cont = 0;
-  for (int i = 1; i < argc; i += 2) {       
+  for (int i = 1; i < argc; i += 2) {
     if (strcmp(argv[i], "-i") == 0) {
       ban_i = i;
       cont++;
@@ -98,7 +102,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  // Validar que se ingresaron las banderas correctas (Se podria decir exactamente cual falta)
+// Validar que se ingresaron las banderas correctas (Se podria decir exactamente cual falta)
   if (cont != 4) {
     printf("Las banderas utilizadas son incorrectas, deben ser las siguientes: -i, -t, -o, -h\n");
     exit(1);
@@ -117,12 +121,18 @@ int main(int argc, char *argv[]) {
   }
 
   // Validar que la imagenOut sea .bmp
-  // Falta esto
-  //
-  //
-  //
-  //
-
+  char cadena[255];
+  strcpy(cadena, argv[ban_t + 1]);
+  char subcadena[] = ".bmp";
+  char *encontrado = strstr(cadena, subcadena);
+  if (encontrado != NULL) {
+    printf("%s", cadena);
+  }
+  else {
+    printf("No tiene la extension");
+    exit(1);
+  }
+  
   // Almacenar la ruta de la imágen
   strcpy(IMAGEN, argv[ban_i + 1]);
 
@@ -133,58 +143,63 @@ int main(int argc, char *argv[]) {
   printf("\n*************************************************************************");
   printf("\nIMAGEN: %s", IMAGEN);
   printf("\n*************************************************************************");
-  printf("\nDimensiones de la imágen:\tAlto=%d\tAncho=%d\n", img.alto, img.ancho);
-
+  printf("\nDimensiones de la imágen:\tAlto=%d\tAncho=%d\n", img.alto,img.ancho);
 
   //***************************************************************************************************************************
   // Creacion de hilos para concurrencia
   //***************************************************************************************************************************
-  
+
   NUM_THREADS = atoi(argv[ban_h + 1]);
   int rc;
   pthread_t *threads = malloc(sizeof(pthread_t) * NUM_THREADS);
 
-  //Opciones de filtro dependiendo de lo ingresado por el usuario
-  if (atoi(argv[ban_o + 1]) == 1) {
+  // Opciones de filtro dependiendo de lo ingresado por el usuario
+  for (int i = 0; i < NUM_THREADS; i++) {
     
-    for (int i = 0; i < NUM_THREADS; i++) {
     thread_args *argumentos = malloc(sizeof(thread_args));
     argumentos->indice = i;
     argumentos->imagen = &img;
-    rc = pthread_create(&threads[i], NULL, convertir_imagenOpcion1, argumentos);
-    if (rc) {
-      perror("Error: ");
-      exit(-1);
+    
+    if (atoi(argv[ban_o + 1]) == 1) { //Filtro Opcion 1
+      rc = pthread_create(&threads[i], NULL, convertir_imagenOpcion1, argumentos);
+      if (rc) {
+        perror("Error: ");
+        exit(-1);
+      }
+
+    } else if (atoi(argv[ban_o + 1]) == 2){ //Filtro Opcion 2
+      rc = pthread_create(&threads[i], NULL, convertir_imagenOpcion2, argumentos);
+      if (rc) {
+        perror("Error: ");
+        exit(-1);
+      }
+      
+    } else if (atoi(argv[ban_o + 1]) == 3){ //Filtro Opcion 3
+      rc = pthread_create(&threads[i], NULL, convertir_imagenOpcion3, argumentos);
+      if (rc) {
+        perror("Error: ");
+        exit(-1);
       }
     }
-
-    // Esperar que los hilos terminen
-    for (int i = 0; i < NUM_THREADS; i++) {
-      if (pthread_join(threads[i], NULL) != 0) {
-        perror("Error al unir los hilos\n");
-        exit(1);
-      }
-    }
-
-    
-  } else if (atoi(argv[ban_o + 1]) == 2) {
-    // Va la funcion de filtro opcion 2
-    
-    
-  } else if (atoi(argv[ban_o + 1]) == 3) {
-    // Va la funcion de filtro opcion 3
-    
     
   }
 
-  //Liberar memoria
+  // Esperar que los hilos terminen
+  for (int i = 0; i < NUM_THREADS; i++) {
+    if (pthread_join(threads[i], NULL) != 0) {
+      perror("Error al unir los hilos\n");
+      exit(1);
+    }
+  }
+
+  // Liberar memoria
   free(threads);
 
-  //***************************************************************************************************************************
+//***************************************************************************************************************************
   // 1 Crear la imágen BMP a partir del arreglo img.pixel[][]
   //***************************************************************************************************************************
-  
-  //Guardar el nombre que ingreso el usuario para su salida en formato BMP
+
+  // Guardar el nombre que ingreso el usuario para su salida en formato BMP
   strcpy(IMAGEN_TRATADA, argv[ban_t + 1]);
 
   crear_imagen(&img, IMAGEN_TRATADA);
@@ -215,8 +230,7 @@ void abrir_imagen(BMP *imagen, char *ruta) {
     exit(1);
   }
 
-  // Leer la cabecera de la imagen y almacenarla en la estructura a la que
-  // apunta imagen
+  // Leer la cabecera de la imagen y almacenarla en la estructura a la que apunta imagen
   fseek(archivo, 0, SEEK_SET);
   fread(&imagen->bm, sizeof(char), 2, archivo);
   fread(&imagen->tamano, sizeof(int), 1, archivo);
@@ -256,8 +270,7 @@ void abrir_imagen(BMP *imagen, char *ruta) {
       imagen->pixel[i][j] = malloc(3 * sizeof(char));
   }
 
-  // Pasar la imágen a el arreglo reservado en escala de grises
-  // unsigned char R,B,G;
+  // Pasar la imágen a el arreglo reservado en escala de grises unsigned char R,B,G;
 
   for (i = 0; i < imagen->alto; i++) {
     for (j = 0; j < imagen->ancho; j++) {
@@ -274,7 +287,7 @@ void abrir_imagen(BMP *imagen, char *ruta) {
 
 //****************************************************************************************************************************************************
 // Función para convertir una imagen BMP a filtro opcion 1
-// Parametros de entrada: Referencia a una thread_args (Estructura thread_args) que contiene indice y referencia a un BMP (Estructura BMP)
+// Parametros de entrada: Referencia a una thread_args (Estructura thread_args) que contiene indice y referencia a un BMP (Estructura BMP) 
 // Parametro que devuelve: Ninguno
 //****************************************************************************************************************************************************
 void *convertir_imagenOpcion1(void *params) {
@@ -284,7 +297,7 @@ void *convertir_imagenOpcion1(void *params) {
   int pedazo = args->imagen->ancho / NUM_THREADS;
   int inicio = args->indice * pedazo;
   int fin = inicio + pedazo;
-  
+
   unsigned char temp;
 
   if (args->indice == NUM_THREADS - 1) {
@@ -312,8 +325,34 @@ void *convertir_imagenOpcion1(void *params) {
 // Parametro que devuelve:
 //****************************************************************************************************************************************************
 
-//Falta esto
+void *convertir_imagenOpcion2(void *params) {
+  int i, j, k;
+  thread_args *args = (thread_args *)params;
 
+  int pedazo = args->imagen->ancho / NUM_THREADS;
+  int inicio = args->indice * pedazo;
+  int fin = inicio + pedazo;
+
+    unsigned char temp;
+
+  if (args->indice == NUM_THREADS - 1) {
+    fin = args->imagen->ancho;
+  }
+  
+  for (i = 0; i < args->imagen->alto; i++) {
+    for (j = inicio; j < fin; j++) {
+      temp = (unsigned char)((args->imagen->pixel[i][j][2] + 
+                              args->imagen->pixel[i][j][1] + 
+                              args->imagen->pixel[i][j][0])/3);
+
+      for (k = 0; k < 3; k++)
+        args->imagen->pixel[i][j][k] = (unsigned char)temp; // Formula correcta
+    }
+  }
+
+  free(params); // Liberar la memoria del apuntador que se recibio
+  pthread_exit((void *)NULL);
+}
 
 //****************************************************************************************************************************************************
 // Función para convertir una imagen BMP a filtro opcion 3
@@ -321,13 +360,37 @@ void *convertir_imagenOpcion1(void *params) {
 // Parametro que devuelve:
 //****************************************************************************************************************************************************
 
-//Falta esto
+//Filtro que quita el verde de una imagen
+void *convertir_imagenOpcion3(void *params) {
+  int i, j, k;
+  thread_args *args = (thread_args *)params;
 
+  int pedazo = args->imagen->ancho / NUM_THREADS;
+  int inicio = args->indice * pedazo;
+  int fin = inicio + pedazo;
+
+  unsigned char temp;
+
+  if (args->indice == NUM_THREADS - 1) {
+    fin = args->imagen->ancho;
+  }
+
+  for (i = 0; i < args->imagen->alto; i++) {
+    for (j = inicio; j < fin; j++) {
+          args->imagen->pixel[i][j][0] = (unsigned char) args->imagen->pixel[i][j][0] * -0.6; 
+          args->imagen->pixel[i][j][1] = (unsigned char) args->imagen->pixel[i][j][1] * 0.9; 
+          args->imagen->pixel[i][j][2] = (unsigned char) args->imagen->pixel[i][j][2] * -0.9; 
+    }
+  }
+
+  free(params); // Liberar la memoria del apuntador que se recibio
+  pthread_exit((void *)NULL);
+}
 
 //****************************************************************************************************************************************************
-//Función para crear una imagen BMP, a partir de la estructura imagen imagen (Arreglo de bytes de alto*ancho  --- 1 Byte por pixel 0-255)
-//Parametros de entrada: Referencia a un BMP (Estructura BMP), Referencia a la cadena ruta char ruta[]=char *ruta
-//Parametro que devuelve: Ninguno
+// Función para crear una imagen BMP, a partir de la estructura imagen imagen (Arreglo de bytes de alto*ancho  --- 1 Byte por pixel 0-255) 
+// Parametros de entrada: Referencia a un BMP (Estructura BMP), Referencia a la cadena ruta char ruta[]=char *ruta 
+// Parametro que devuelve: Ninguno
 //****************************************************************************************************************************************************
 void crear_imagen(BMP *imagen, char ruta[]) {
   FILE *archivo; // Puntero FILE para el archivo de imágen a abrir
@@ -364,10 +427,8 @@ void crear_imagen(BMP *imagen, char ruta[]) {
   // (Deben escribirse los valores BGR)
   for (i = 0; i < imagen->alto; i++) {
     for (j = 0; j < imagen->ancho; j++) {
-
       for (k = 0; k < 3; k++)
-        fwrite(&imagen->pixel[i][j][k], sizeof(char), 1,
-               archivo); // Escribir el Byte Blue del pixel
+        fwrite(&imagen->pixel[i][j][k], sizeof(char), 1, archivo); // Escribir el Byte Blue del pixel
     }
   }
   // Cerrrar el archivo
