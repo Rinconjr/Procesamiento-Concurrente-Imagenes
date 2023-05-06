@@ -1,12 +1,12 @@
 # **Procesamiento Concurrente Imágenes**
 Lectura, escritura y tratamiento de imágenes BMP. El código sirve para el procesamiento de una imagen en formato BMP para aplicarle filtros de forma concurrente por medio de la utilización de hilos en C.
 
-## Compilación
+## *Compilación*
 ```bash
 $ gcc imgconc.c -o imgconc
 ```
 
-## Ejecución 
+## *Ejecución* 
 ```bash
 $ ./imgconc –i imagenIn –t imagenOut –o opción –h nhilos
 ```
