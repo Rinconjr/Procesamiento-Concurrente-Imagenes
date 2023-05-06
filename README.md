@@ -11,7 +11,7 @@ $ gcc imgconc.c -o imgconc
 $ ./imgconc –i imagenIn –t imagenOut –o opción –h nhilos
 ```
 
-**Explicación flags:**
+## *Explicación flags:*
 - **-i (imagenIn):** Nombre del archivo BPM para aplicarle filtros.
 - **-t (imagenOut):** Nombre del archivo BPM para guardar la imagen con el filtro aplicado.
 - **-o (Opción):** Número con el filtro a utilizar.
