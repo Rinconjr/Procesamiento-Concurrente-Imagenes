@@ -12,7 +12,7 @@ $ ./imgconc –i imagenIn –t imagenOut –o opción –h nhilos
 ```
 
 **Explicación flags:**
-- -i (imagenIn): Nombre del archivo BPM para aplicarle filtros.
-- -t (imagenOut): Nombre del archivo BPM para guardar la imagen con el filtro aplicado.
-- -o (Opción): Número con el filtro a utilizar.
-- -h (nhilos): Número de hilos a utilizar en el procesamiento.
+- **-i (imagenIn):** Nombre del archivo BPM para aplicarle filtros.
+- **-t (imagenOut):** Nombre del archivo BPM para guardar la imagen con el filtro aplicado.
+- **-o (Opción):** Número con el filtro a utilizar.
+- **-h (nhilos):** Número de hilos a utilizar en el procesamiento.
