@@ -6,6 +6,7 @@ Lectura, escritura y tratamiento de imágenes BMP. El código sirve para el proc
 
 ## Ejecución 
 **$** ./imgconc –i imagenIn –t imagenOut –o opción –h nhilos
+
 **Explicación flags:**
 - -i (imagenIn): Nombre del archivo BPM para aplicarle filtros.
 - -t (imagenOut): Nombre del archivo BPM para guardar la imagen con el filtro aplicado.
