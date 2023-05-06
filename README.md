@@ -8,7 +8,7 @@ $ gcc imgconc.c -o imgconc
 
 ## Ejecución 
 ```bash
-$ './imgconc –i imagenIn –t imagenOut –o opción –h nhilos'
+$ ./imgconc –i imagenIn –t imagenOut –o opción –h nhilos
 ```
 
 **Explicación flags:**
